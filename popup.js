@@ -4,8 +4,9 @@ const THRESHOLD_KEYS = ["review_count", "rating"]; // filters that need a numeri
 const enabledEl = document.getElementById("enabled");
 const filterSettings = document.getElementById("filterSettings");
 const sortByEl = document.getElementById("sortBy");
-const applyBtn = document.getElementById("applyBtn");
 const statusEl = document.getElementById("status");
+
+let debounceTimer = null;
 
 function updateUI() {
   const disabled = !enabledEl.checked;
@@ -64,7 +65,13 @@ function saveAndApply() {
   });
 }
 
-// Load saved settings (only restore UI state, don't auto-enable)
+// Debounced version for number inputs (waits for user to stop typing)
+function debouncedApply() {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(saveAndApply, 400);
+}
+
+// Load saved settings
 chrome.storage.local.get(["enabled", "filters", "sortBy"], (data) => {
   enabledEl.checked = data.enabled ?? false;
   sortByEl.value = data.sortBy ?? "none";
@@ -81,14 +88,24 @@ chrome.storage.local.get(["enabled", "filters", "sortBy"], (data) => {
   updateUI();
 });
 
-// Toggle immediately saves + applies (so disable restores items)
+// Toggle: immediate apply
 enabledEl.addEventListener("change", () => {
   updateUI();
   saveAndApply();
 });
 
+// Filter checkboxes: immediate apply
 for (const key of FILTER_KEYS) {
-  document.getElementById(`f_${key}`).addEventListener("change", updateUI);
+  document.getElementById(`f_${key}`).addEventListener("change", () => {
+    updateUI();
+    saveAndApply();
+  });
 }
 
-applyBtn.addEventListener("click", saveAndApply);
+// Threshold number inputs: debounced apply
+for (const key of THRESHOLD_KEYS) {
+  document.getElementById(`val_${key}`).addEventListener("input", debouncedApply);
+}
+
+// Sort dropdown: immediate apply
+sortByEl.addEventListener("change", saveAndApply);
