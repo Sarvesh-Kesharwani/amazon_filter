@@ -2,6 +2,7 @@
 const PRODUCT_SELECTORS = [
   '[data-component-type="s-search-result"]',            // main search results
   '.s-result-item[data-asin]:not([data-asin=""])',      // fallback
+  '.sg-col-inner .s-result-item',                       // grid layout fallback
 ];
 
 function getProductCards() {
@@ -13,34 +14,57 @@ function getProductCards() {
 }
 
 function parseReviewCount(card) {
-  const parent = card.querySelector('.a-row.a-size-small') || card;
-  const spans = parent.querySelectorAll('span.a-size-base');
-  for (const span of spans) {
-    const text = span.textContent.trim().replace(/[(),]/g, "");
+  // Try links that point to reviews section — the text inside is the count
+  const reviewLinks = card.querySelectorAll('a[href*="#customerReviews"], a[href*="#reviews"], a[href*="product-reviews"]');
+  for (const link of reviewLinks) {
+    const text = link.textContent.trim().replace(/[(),.\s]/g, "").replace(/,/g, "");
     const num = parseInt(text, 10);
     if (!isNaN(num) && num > 0) return num;
   }
 
-  const ariaEl = card.querySelector('a[href*="customerReviews"] span, a[href*="#reviews"] span');
-  if (ariaEl) {
-    const num = parseInt(ariaEl.textContent.replace(/[^0-9]/g, ""), 10);
-    if (!isNaN(num)) return num;
+  // Look in the ratings row for a plain number span
+  const row = card.querySelector('.a-row.a-size-small, [data-cy="reviews-ratings-slot"]') || card;
+  const spans = row.querySelectorAll('span.a-size-base, span.a-size-small');
+  for (const span of spans) {
+    const text = span.textContent.trim().replace(/[(),.\s]/g, "").replace(/,/g, "");
+    const num = parseInt(text, 10);
+    if (!isNaN(num) && num > 0) return num;
+  }
+
+  // aria-label fallback: "1,234 ratings"
+  const allLinks = card.querySelectorAll('a');
+  for (const a of allLinks) {
+    const label = a.getAttribute("aria-label") || "";
+    const match = label.match(/([\d,]+)\s*(rating|review|customer)/i);
+    if (match) return parseInt(match[1].replace(/,/g, ""), 10);
   }
 
   return 0;
 }
 
 function parseRating(card) {
-  const ratingEl = card.querySelector('i.a-icon-star-small, i.a-icon-star, [data-cy="reviews-ratings-slot"] i');
-  if (ratingEl) {
-    const label = ratingEl.getAttribute("aria-label") || ratingEl.textContent;
-    const match = label.match(/([\d.]+)\s*(out of|\/)/);
+  // Primary: .a-icon-alt text like "4.5 out of 5 stars"
+  const altEls = card.querySelectorAll('.a-icon-alt, i.a-icon-star-small span, i.a-icon-star span');
+  for (const el of altEls) {
+    const match = el.textContent.match(/([\d.]+)\s*(out of|\/|von|sur|su)/);
     if (match) return parseFloat(match[1]);
   }
 
-  const altEl = card.querySelector('.a-icon-alt');
-  if (altEl) {
-    const match = altEl.textContent.match(/([\d.]+)/);
+  // aria-label on star icons: "4.5 out of 5 stars"
+  const starIcons = card.querySelectorAll('i[class*="a-icon-star"], [data-cy="reviews-ratings-slot"] i, span[class*="a-icon-star"]');
+  for (const icon of starIcons) {
+    const label = icon.getAttribute("aria-label") || icon.className || "";
+    const match = label.match(/([\d.]+)\s*(out of|\/|von|sur|su)/);
+    if (match) return parseFloat(match[1]);
+    // class-based: "a-star-small-4-5" means 4.5
+    const classMatch = label.match(/a-star(?:-small)?-([\d])(?:-([\d]))?/);
+    if (classMatch) return parseFloat(classMatch[1] + (classMatch[2] ? "." + classMatch[2] : ""));
+  }
+
+  // Fallback: any element with aria-label containing star rating
+  const allSpans = card.querySelectorAll('[aria-label*="star"], [aria-label*="Star"]');
+  for (const el of allSpans) {
+    const match = el.getAttribute("aria-label").match(/([\d.]+)/);
     if (match) return parseFloat(match[1]);
   }
 
@@ -48,13 +72,26 @@ function parseRating(card) {
 }
 
 function isBestSeller(card) {
+  // Badge text, badge images, or textual mentions
+  if (card.querySelector('.a-badge-text, [data-a-badge-type], .a-badge-label, span.a-badge-text')) {
+    const badgeText = (card.querySelector('.a-badge-text, .a-badge-label') || {}).textContent || "";
+    if (/best\s*seller/i.test(badgeText)) return true;
+  }
+  // Fallback: plain text scan
   const text = card.textContent.toLowerCase();
   return text.includes("best seller") || text.includes("bestseller") ||
-    !!card.querySelector('.a-badge-text, [data-a-badge-type="deal"]');
+    text.includes("#1 best") || text.includes("amazon's choice");
 }
 
 function isPrime(card) {
-  return !!card.querySelector('.a-icon-prime, [aria-label="Amazon Prime"], i.a-icon-prime-tp');
+  // Multiple selectors for Prime badge across Amazon regions
+  return !!card.querySelector(
+    'i.a-icon-prime, i.a-icon-prime-tp, ' +
+    'span[aria-label="Amazon Prime"], ' +
+    '[data-a-icon-type="prime"], ' +
+    '.aok-relative .a-icon-prime, ' +
+    'span.a-declarative i[aria-label*="Prime"]'
+  );
 }
 
 // Check if a card passes ALL active filters
@@ -78,9 +115,10 @@ function passesFilters(card, filters) {
 function sortCards(cards, sortBy) {
   if (sortBy === "none") return false;
 
-  const [field, direction] = sortBy.split("_").length === 3
-    ? [sortBy.substring(0, sortBy.lastIndexOf("_")), sortBy.substring(sortBy.lastIndexOf("_") + 1)]
-    : [sortBy, "desc"];
+  // sortBy format: "review_count_desc", "rating_asc", etc.
+  const lastUnderscore = sortBy.lastIndexOf("_");
+  const field = sortBy.substring(0, lastUnderscore);
+  const direction = sortBy.substring(lastUnderscore + 1);
 
   const getValue = field === "review_count" ? parseReviewCount : parseRating;
   const multiplier = direction === "asc" ? 1 : -1;
