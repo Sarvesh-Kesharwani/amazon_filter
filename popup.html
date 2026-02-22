@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Amazon Product Filter</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Amazon Filter</h1>
+
+    <div class="setting-row">
+      <span class="label">Enable Filter</span>
+      <label class="toggle">
+        <input type="checkbox" id="enabled">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="setting-group" id="filterSettings">
+      <label class="label" for="filterType">Filter By</label>
+      <select id="filterType">
+        <option value="review_count">Review Count</option>
+        <option value="rating">Rating</option>
+        <option value="best_seller">Best Seller</option>
+        <option value="prime">Prime Only</option>
+      </select>
+
+      <div id="thresholdGroup">
+        <label class="label" for="threshold">Minimum Value</label>
+        <input type="number" id="threshold" min="0" placeholder="e.g. 100">
+        <p class="hint" id="hintText">Products with fewer reviews will be hidden.</p>
+      </div>
+    </div>
+
+    <button id="applyBtn">Apply Filter</button>
+    <p class="status" id="status"></p>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

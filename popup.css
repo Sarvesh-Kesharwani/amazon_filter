@@ -1,0 +1,152 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 300px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f5f0e1;
+  color: #1a1a1a;
+}
+
+.container {
+  padding: 20px;
+}
+
+h1 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 16px;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+/* Toggle switch */
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: #c9c0a8;
+  border-radius: 24px;
+  transition: background-color 0.25s;
+}
+
+.slider::before {
+  content: "";
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: #fff;
+  border-radius: 50%;
+  transition: transform 0.25s;
+}
+
+.toggle input:checked + .slider {
+  background-color: #1a1a1a;
+}
+
+.toggle input:checked + .slider::before {
+  transform: translateX(20px);
+}
+
+.divider {
+  height: 1px;
+  background-color: #d4cbb5;
+  margin: 12px 0;
+}
+
+.setting-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.setting-group.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+select,
+input[type="number"] {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 13px;
+  border: 2px solid #1a1a1a;
+  border-radius: 6px;
+  background-color: #faf6eb;
+  color: #1a1a1a;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+select:focus,
+input[type="number"]:focus {
+  border-color: #4a4a4a;
+}
+
+.hint {
+  font-size: 11px;
+  color: #6b6350;
+  margin-top: -4px;
+}
+
+#applyBtn {
+  margin-top: 16px;
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #f5f0e1;
+  background-color: #1a1a1a;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+#applyBtn:hover {
+  background-color: #333;
+}
+
+#applyBtn:active {
+  background-color: #000;
+}
+
+.status {
+  margin-top: 8px;
+  font-size: 12px;
+  text-align: center;
+  color: #6b6350;
+  min-height: 16px;
+}
