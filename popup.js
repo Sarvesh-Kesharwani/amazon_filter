@@ -10,7 +10,6 @@ const statusEl = document.getElementById("status");
 function updateUI() {
   const disabled = !enabledEl.checked;
   filterSettings.classList.toggle("disabled", disabled);
-  applyBtn.disabled = disabled;
 
   // Show/hide threshold inputs based on checkbox state
   for (const key of THRESHOLD_KEYS) {
@@ -20,7 +19,52 @@ function updateUI() {
   }
 }
 
-// Load saved settings
+// Gather current settings from the UI
+function gatherSettings() {
+  const filters = {};
+  for (const key of FILTER_KEYS) {
+    const cb = document.getElementById(`f_${key}`);
+    if (!cb.checked) continue;
+    const valEl = document.getElementById(`val_${key}`);
+    filters[key] = {
+      active: true,
+      value: valEl ? parseFloat(valEl.value) || 0 : 0,
+    };
+  }
+  return {
+    enabled: enabledEl.checked,
+    filters,
+    sortBy: sortByEl.value,
+  };
+}
+
+// Save settings and send to content script
+function saveAndApply() {
+  const settings = gatherSettings();
+  chrome.storage.local.set(settings, () => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0]) {
+        chrome.tabs.sendMessage(tabs[0].id, { action: "applyFilter", ...settings }, (response) => {
+          if (chrome.runtime.lastError) {
+            statusEl.textContent = "Reload the Amazon page and try again.";
+          } else if (response) {
+            if (!settings.enabled) {
+              statusEl.textContent = "Filter disabled — all products restored.";
+            } else {
+              const parts = [];
+              if (response.hidden > 0) parts.push(`${response.hidden} hidden`);
+              if (response.sorted) parts.push("sorted");
+              statusEl.textContent = parts.length ? `Done — ${parts.join(", ")}.` : "Done — no changes.";
+            }
+          }
+          setTimeout(() => { statusEl.textContent = ""; }, 3000);
+        });
+      }
+    });
+  });
+}
+
+// Load saved settings (only restore UI state, don't auto-enable)
 chrome.storage.local.get(["enabled", "filters", "sortBy"], (data) => {
   enabledEl.checked = data.enabled ?? false;
   sortByEl.value = data.sortBy ?? "none";
@@ -37,45 +81,14 @@ chrome.storage.local.get(["enabled", "filters", "sortBy"], (data) => {
   updateUI();
 });
 
-enabledEl.addEventListener("change", updateUI);
+// Toggle immediately saves + applies (so disable restores items)
+enabledEl.addEventListener("change", () => {
+  updateUI();
+  saveAndApply();
+});
+
 for (const key of FILTER_KEYS) {
   document.getElementById(`f_${key}`).addEventListener("change", updateUI);
 }
 
-applyBtn.addEventListener("click", () => {
-  // Build filters object
-  const filters = {};
-  for (const key of FILTER_KEYS) {
-    const cb = document.getElementById(`f_${key}`);
-    if (!cb.checked) continue;
-    const valEl = document.getElementById(`val_${key}`);
-    filters[key] = {
-      active: true,
-      value: valEl ? parseFloat(valEl.value) || 0 : 0,
-    };
-  }
-
-  const settings = {
-    enabled: enabledEl.checked,
-    filters,
-    sortBy: sortByEl.value,
-  };
-
-  chrome.storage.local.set(settings, () => {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs[0]) {
-        chrome.tabs.sendMessage(tabs[0].id, { action: "applyFilter", ...settings }, (response) => {
-          if (chrome.runtime.lastError) {
-            statusEl.textContent = "Reload the Amazon page and try again.";
-          } else if (response) {
-            const parts = [];
-            if (response.hidden > 0) parts.push(`${response.hidden} hidden`);
-            if (response.sorted) parts.push("sorted");
-            statusEl.textContent = parts.length ? `Done — ${parts.join(", ")}.` : "Done — no changes.";
-          }
-          setTimeout(() => { statusEl.textContent = ""; }, 3000);
-        });
-      }
-    });
-  });
-});
+applyBtn.addEventListener("click", saveAndApply);

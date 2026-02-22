@@ -1,21 +1,44 @@
-// Selectors for Amazon search result items
+// Selectors for Amazon search result items — order matters, first match wins
 const PRODUCT_SELECTORS = [
-  '[data-component-type="s-search-result"]',            // main search results
-  '.s-result-item[data-asin]:not([data-asin=""])',      // fallback
-  '.sg-col-inner .s-result-item',                       // grid layout fallback
+  '[data-component-type="s-search-result"]',
+  '.s-result-item[data-asin]:not([data-asin=""])',
+  '.sg-col-inner .s-result-item',
 ];
 
 function getProductCards() {
+  // Collect all cards, deduplicating by element reference
+  const seen = new Set();
+  const results = [];
   for (const selector of PRODUCT_SELECTORS) {
-    const cards = document.querySelectorAll(selector);
-    if (cards.length > 0) return Array.from(cards);
+    for (const card of document.querySelectorAll(selector)) {
+      if (!seen.has(card)) {
+        seen.add(card);
+        results.push(card);
+      }
+    }
   }
-  return [];
+
+  // Also grab sponsored / thematic cards that live outside the main grid
+  // These are typically inside div[data-component-type="sp-sponsored-result"] or similar
+  const sponsored = document.querySelectorAll(
+    '[data-component-type*="sp_"], [data-component-type*="sponsored"], ' +
+    '.AdHolder [data-asin], .s-shopping-adviser [data-asin]'
+  );
+  for (const card of sponsored) {
+    if (!seen.has(card)) {
+      seen.add(card);
+      results.push(card);
+    }
+  }
+
+  return results;
 }
 
 function parseReviewCount(card) {
   // Try links that point to reviews section — the text inside is the count
-  const reviewLinks = card.querySelectorAll('a[href*="#customerReviews"], a[href*="#reviews"], a[href*="product-reviews"]');
+  const reviewLinks = card.querySelectorAll(
+    'a[href*="#customerReviews"], a[href*="#reviews"], a[href*="product-reviews"]'
+  );
   for (const link of reviewLinks) {
     const text = link.textContent.trim().replace(/[(),.\s]/g, "").replace(/,/g, "");
     const num = parseInt(text, 10);
@@ -39,6 +62,11 @@ function parseReviewCount(card) {
     if (match) return parseInt(match[1].replace(/,/g, ""), 10);
   }
 
+  // Last resort: scan all text nodes for a number near "ratings" or "reviews"
+  const fullText = card.textContent;
+  const m = fullText.match(/([\d,]+)\s*(ratings|reviews)/i);
+  if (m) return parseInt(m[1].replace(/,/g, ""), 10);
+
   return 0;
 }
 
@@ -46,18 +74,21 @@ function parseRating(card) {
   // Primary: .a-icon-alt text like "4.5 out of 5 stars"
   const altEls = card.querySelectorAll('.a-icon-alt, i.a-icon-star-small span, i.a-icon-star span');
   for (const el of altEls) {
-    const match = el.textContent.match(/([\d.]+)\s*(out of|\/|von|sur|su)/);
+    const match = el.textContent.match(/([\d.]+)\s*(out of|\/|von|sur|su|中)/);
     if (match) return parseFloat(match[1]);
   }
 
-  // aria-label on star icons: "4.5 out of 5 stars"
-  const starIcons = card.querySelectorAll('i[class*="a-icon-star"], [data-cy="reviews-ratings-slot"] i, span[class*="a-icon-star"]');
+  // aria-label on star icons
+  const starIcons = card.querySelectorAll(
+    'i[class*="a-icon-star"], [data-cy="reviews-ratings-slot"] i, span[class*="a-icon-star"]'
+  );
   for (const icon of starIcons) {
-    const label = icon.getAttribute("aria-label") || icon.className || "";
-    const match = label.match(/([\d.]+)\s*(out of|\/|von|sur|su)/);
+    const label = icon.getAttribute("aria-label") || "";
+    const match = label.match(/([\d.]+)\s*(out of|\/|von|sur|su|中)/);
     if (match) return parseFloat(match[1]);
     // class-based: "a-star-small-4-5" means 4.5
-    const classMatch = label.match(/a-star(?:-small)?-([\d])(?:-([\d]))?/);
+    const cls = icon.className || "";
+    const classMatch = cls.match(/a-star(?:-small)?-([\d])(?:-([\d]))?/);
     if (classMatch) return parseFloat(classMatch[1] + (classMatch[2] ? "." + classMatch[2] : ""));
   }
 
@@ -72,19 +103,16 @@ function parseRating(card) {
 }
 
 function isBestSeller(card) {
-  // Badge text, badge images, or textual mentions
   if (card.querySelector('.a-badge-text, [data-a-badge-type], .a-badge-label, span.a-badge-text')) {
     const badgeText = (card.querySelector('.a-badge-text, .a-badge-label') || {}).textContent || "";
     if (/best\s*seller/i.test(badgeText)) return true;
   }
-  // Fallback: plain text scan
   const text = card.textContent.toLowerCase();
   return text.includes("best seller") || text.includes("bestseller") ||
     text.includes("#1 best") || text.includes("amazon's choice");
 }
 
 function isPrime(card) {
-  // Multiple selectors for Prime badge across Amazon regions
   return !!card.querySelector(
     'i.a-icon-prime, i.a-icon-prime-tp, ' +
     'span[aria-label="Amazon Prime"], ' +
@@ -115,7 +143,6 @@ function passesFilters(card, filters) {
 function sortCards(cards, sortBy) {
   if (sortBy === "none") return false;
 
-  // sortBy format: "review_count_desc", "rating_asc", etc.
   const lastUnderscore = sortBy.lastIndexOf("_");
   const field = sortBy.substring(0, lastUnderscore);
   const direction = sortBy.substring(lastUnderscore + 1);
@@ -123,24 +150,15 @@ function sortCards(cards, sortBy) {
   const getValue = field === "review_count" ? parseReviewCount : parseRating;
   const multiplier = direction === "asc" ? 1 : -1;
 
-  // Only sort visible cards
   const visibleCards = cards.filter(c => c.style.display !== "none");
   if (visibleCards.length === 0) return false;
 
   const parent = visibleCards[0].parentNode;
 
-  // Store original order data attributes for potential reset
-  visibleCards.forEach((card, i) => {
-    if (!card.dataset.originalOrder) {
-      card.dataset.originalOrder = i;
-    }
-  });
-
   const sorted = [...visibleCards].sort((a, b) => {
     return (getValue(a) - getValue(b)) * multiplier;
   });
 
-  // Re-append in sorted order (hidden cards stay in place at the end)
   for (const card of sorted) {
     parent.appendChild(card);
   }
@@ -156,6 +174,7 @@ function applyFilter(settings) {
   const hasActiveFilter = Object.values(filters).some(f => f.active);
 
   for (const card of cards) {
+    // Always reset visibility first
     card.style.display = "";
 
     if (!enabled) continue;
@@ -183,9 +202,6 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   return true;
 });
 
-// Auto-apply saved settings on page load
-chrome.storage.local.get(["enabled", "filters", "sortBy"], (data) => {
-  if (data.enabled) {
-    applyFilter(data);
-  }
-});
+// NOTE: No auto-apply on page load. The filter only runs when the user
+// clicks Apply or toggles enabled in the popup. This prevents the toggle
+// from appearing to auto-enable on every page reload.
