@@ -1,5 +1,17 @@
 # Release Notes — Amazon Product Filter
 
+## v1.1.0
+
+### New Features
+- **Multi-Dimensional Filtering**: Enable multiple filters simultaneously (e.g. Prime + minimum rating + minimum reviews).
+- **Sorting**: Sort visible results by review count or rating, ascending or descending.
+
+### UI Changes
+- Filter selection changed from a single dropdown to individual checkboxes — each filter can be toggled independently.
+- Sort dropdown added below the filter options.
+
+---
+
 ## v1.0.0
 
 ### Features

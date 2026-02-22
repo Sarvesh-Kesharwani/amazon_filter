@@ -1,16 +1,9 @@
-const HINTS = {
-  review_count: "Products with fewer reviews will be hidden.",
-  rating: "Products rated below this value will be hidden.",
-  best_seller: "Only Best Seller badges will be kept.",
-  prime: "Only Prime-eligible products will be kept.",
-};
+const FILTER_KEYS = ["review_count", "rating", "best_seller", "prime"];
+const THRESHOLD_KEYS = ["review_count", "rating"]; // filters that need a numeric value
 
 const enabledEl = document.getElementById("enabled");
-const filterTypeEl = document.getElementById("filterType");
-const thresholdEl = document.getElementById("threshold");
-const thresholdGroup = document.getElementById("thresholdGroup");
-const hintText = document.getElementById("hintText");
 const filterSettings = document.getElementById("filterSettings");
+const sortByEl = document.getElementById("sortBy");
 const applyBtn = document.getElementById("applyBtn");
 const statusEl = document.getElementById("status");
 
@@ -19,52 +12,66 @@ function updateUI() {
   filterSettings.classList.toggle("disabled", disabled);
   applyBtn.disabled = disabled;
 
-  const type = filterTypeEl.value;
-  const isBool = type === "best_seller" || type === "prime";
-  thresholdGroup.style.display = isBool ? "none" : "flex";
-  thresholdGroup.style.flexDirection = "column";
-  thresholdGroup.style.gap = "6px";
-  hintText.textContent = HINTS[type];
-
-  if (type === "review_count") {
-    thresholdEl.placeholder = "e.g. 100";
-    thresholdEl.min = 0;
-    thresholdEl.step = 1;
-  } else if (type === "rating") {
-    thresholdEl.placeholder = "e.g. 4.0";
-    thresholdEl.min = 0;
-    thresholdEl.max = 5;
-    thresholdEl.step = 0.1;
+  // Show/hide threshold inputs based on checkbox state
+  for (const key of THRESHOLD_KEYS) {
+    const cb = document.getElementById(`f_${key}`);
+    const thRow = document.getElementById(`th_${key}`);
+    thRow.classList.toggle("visible", cb.checked);
   }
 }
 
 // Load saved settings
-chrome.storage.local.get(["enabled", "filterType", "threshold"], (data) => {
+chrome.storage.local.get(["enabled", "filters", "sortBy"], (data) => {
   enabledEl.checked = data.enabled ?? false;
-  filterTypeEl.value = data.filterType ?? "review_count";
-  thresholdEl.value = data.threshold ?? "";
+  sortByEl.value = data.sortBy ?? "none";
+
+  const filters = data.filters ?? {};
+  for (const key of FILTER_KEYS) {
+    const cb = document.getElementById(`f_${key}`);
+    cb.checked = !!filters[key]?.active;
+    const valEl = document.getElementById(`val_${key}`);
+    if (valEl && filters[key]?.value != null) {
+      valEl.value = filters[key].value;
+    }
+  }
   updateUI();
 });
 
 enabledEl.addEventListener("change", updateUI);
-filterTypeEl.addEventListener("change", updateUI);
+for (const key of FILTER_KEYS) {
+  document.getElementById(`f_${key}`).addEventListener("change", updateUI);
+}
 
 applyBtn.addEventListener("click", () => {
+  // Build filters object
+  const filters = {};
+  for (const key of FILTER_KEYS) {
+    const cb = document.getElementById(`f_${key}`);
+    if (!cb.checked) continue;
+    const valEl = document.getElementById(`val_${key}`);
+    filters[key] = {
+      active: true,
+      value: valEl ? parseFloat(valEl.value) || 0 : 0,
+    };
+  }
+
   const settings = {
     enabled: enabledEl.checked,
-    filterType: filterTypeEl.value,
-    threshold: parseFloat(thresholdEl.value) || 0,
+    filters,
+    sortBy: sortByEl.value,
   };
 
   chrome.storage.local.set(settings, () => {
-    // Send message to active tab's content script
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0]) {
         chrome.tabs.sendMessage(tabs[0].id, { action: "applyFilter", ...settings }, (response) => {
           if (chrome.runtime.lastError) {
             statusEl.textContent = "Reload the Amazon page and try again.";
           } else if (response) {
-            statusEl.textContent = `Done — ${response.hidden} product(s) hidden.`;
+            const parts = [];
+            if (response.hidden > 0) parts.push(`${response.hidden} hidden`);
+            if (response.sorted) parts.push("sorted");
+            statusEl.textContent = parts.length ? `Done — ${parts.join(", ")}.` : "Done — no changes.";
           }
           setTimeout(() => { statusEl.textContent = ""; }, 3000);
         });

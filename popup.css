@@ -97,6 +97,37 @@ h1 {
   pointer-events: none;
 }
 
+/* Filter items */
+.filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.checkbox-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #1a1a1a;
+  cursor: pointer;
+}
+
+.threshold-row {
+  display: none;
+  padding-left: 24px;
+}
+
+.threshold-row.visible {
+  display: block;
+}
+
 select,
 input[type="number"] {
   width: 100%;
@@ -113,12 +144,6 @@ input[type="number"] {
 select:focus,
 input[type="number"]:focus {
   border-color: #4a4a4a;
-}
-
-.hint {
-  font-size: 11px;
-  color: #6b6350;
-  margin-top: -4px;
 }
 
 #applyBtn {
