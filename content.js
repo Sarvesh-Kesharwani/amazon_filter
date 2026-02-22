@@ -34,38 +34,51 @@ function getProductCards() {
   return results;
 }
 
+// Parse shorthand numbers: "1K" -> 1000, "2.5K+" -> 2500, "1,234" -> 1234, "15" -> 15
+function parseShortNumber(text) {
+  const cleaned = text.trim().replace(/[(),\s+]/g, "");
+  // Match patterns like "2.5K", "10K", "1.2M"
+  const shortMatch = cleaned.match(/^([\d,.]+)\s*([KkMm])/);
+  if (shortMatch) {
+    const base = parseFloat(shortMatch[1].replace(/,/g, ""));
+    const multiplier = shortMatch[2].toLowerCase() === "k" ? 1000 : 1000000;
+    return Math.round(base * multiplier);
+  }
+  // Plain number with possible commas: "1,234"
+  const num = parseInt(cleaned.replace(/,/g, ""), 10);
+  return isNaN(num) ? 0 : num;
+}
+
 function parseReviewCount(card) {
   // Try links that point to reviews section — the text inside is the count
   const reviewLinks = card.querySelectorAll(
     'a[href*="#customerReviews"], a[href*="#reviews"], a[href*="product-reviews"]'
   );
   for (const link of reviewLinks) {
-    const text = link.textContent.trim().replace(/[(),.\s]/g, "").replace(/,/g, "");
-    const num = parseInt(text, 10);
-    if (!isNaN(num) && num > 0) return num;
+    const num = parseShortNumber(link.textContent);
+    if (num > 0) return num;
   }
 
   // Look in the ratings row for a plain number span
   const row = card.querySelector('.a-row.a-size-small, [data-cy="reviews-ratings-slot"]') || card;
   const spans = row.querySelectorAll('span.a-size-base, span.a-size-small');
   for (const span of spans) {
-    const text = span.textContent.trim().replace(/[(),.\s]/g, "").replace(/,/g, "");
-    const num = parseInt(text, 10);
-    if (!isNaN(num) && num > 0) return num;
+    const num = parseShortNumber(span.textContent);
+    if (num > 0) return num;
   }
 
-  // aria-label fallback: "1,234 ratings"
+  // aria-label fallback: "1,234 ratings" or "2K ratings"
   const allLinks = card.querySelectorAll('a');
   for (const a of allLinks) {
     const label = a.getAttribute("aria-label") || "";
-    const match = label.match(/([\d,]+)\s*(rating|review|customer)/i);
-    if (match) return parseInt(match[1].replace(/,/g, ""), 10);
+    const match = label.match(/([\d,.]+[KkMm]?\+?)\s*(rating|review|customer)/i);
+    if (match) return parseShortNumber(match[1]);
   }
 
   // Last resort: scan all text nodes for a number near "ratings" or "reviews"
   const fullText = card.textContent;
-  const m = fullText.match(/([\d,]+)\s*(ratings|reviews)/i);
-  if (m) return parseInt(m[1].replace(/,/g, ""), 10);
+  const m = fullText.match(/([\d,.]+[KkMm]?\+?)\s*(ratings|reviews)/i);
+  if (m) return parseShortNumber(m[1]);
 
   return 0;
 }
