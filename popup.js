@@ -1,4 +1,4 @@
-const FILTER_KEYS = ["review_count", "rating", "best_seller", "prime"];
+const FILTER_KEYS = ["review_count", "rating", "best_seller", "prime", "amazons_choice", "limited_time_deal"];
 const THRESHOLD_KEYS = ["review_count", "rating"]; // filters that need a numeric value
 
 const enabledEl = document.getElementById("enabled");

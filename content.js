@@ -122,7 +122,29 @@ function isBestSeller(card) {
   }
   const text = card.textContent.toLowerCase();
   return text.includes("best seller") || text.includes("bestseller") ||
-    text.includes("#1 best") || text.includes("amazon's choice");
+    text.includes("#1 best");
+}
+
+function isAmazonsChoice(card) {
+  if (card.querySelector('.a-badge-text, [data-a-badge-type], .a-badge-label')) {
+    const badgeText = (card.querySelector('.a-badge-text, .a-badge-label') || {}).textContent || "";
+    if (/amazon.?s\s*choice/i.test(badgeText)) return true;
+  }
+  const text = card.textContent.toLowerCase();
+  return text.includes("amazon's choice") || text.includes("amazons choice");
+}
+
+function isLimitedTimeDeal(card) {
+  const dealBadge = card.querySelector(
+    '.a-color-price .a-text-bold, [data-a-badge-type="deal"], .dealBadge, ' +
+    'span[data-deal-badge], .s-coupon-highlight-color'
+  );
+  if (dealBadge) {
+    const text = dealBadge.textContent.toLowerCase();
+    if (text.includes("limited time deal") || text.includes("deal")) return true;
+  }
+  const text = card.textContent.toLowerCase();
+  return text.includes("limited time deal");
 }
 
 function isPrime(card) {
@@ -147,6 +169,12 @@ function passesFilters(card, filters) {
     return false;
   }
   if (filters.prime?.active && !isPrime(card)) {
+    return false;
+  }
+  if (filters.amazons_choice?.active && !isAmazonsChoice(card)) {
+    return false;
+  }
+  if (filters.limited_time_deal?.active && !isLimitedTimeDeal(card)) {
     return false;
   }
   return true;
