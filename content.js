@@ -180,6 +180,30 @@ function passesFilters(card, filters) {
   return true;
 }
 
+function parsePrice(card) {
+  // Try the whole price span (e.g. "$29.99" or "₹1,299")
+  const priceEl = card.querySelector(
+    'span.a-price > span.a-offscreen, span.a-price .a-price-whole, .a-color-price'
+  );
+  if (priceEl) {
+    const text = priceEl.textContent.replace(/[^\d.,]/g, "");
+    // Handle formats: "29.99", "1,299.00", "1.299,00" (EU)
+    const cleaned = text.includes(",") && text.indexOf(",") > text.indexOf(".")
+      ? text.replace(/\./g, "").replace(",", ".") // EU: 1.299,00 -> 1299.00
+      : text.replace(/,/g, ""); // US/IN: 1,299.00 -> 1299.00
+    const num = parseFloat(cleaned);
+    if (!isNaN(num) && num > 0) return num;
+  }
+  // Fallback: search for price-like patterns in card text
+  const text = card.textContent;
+  const match = text.match(/[\$₹€£]\s*([\d,]+\.?\d*)/);
+  if (match) {
+    const num = parseFloat(match[1].replace(/,/g, ""));
+    if (!isNaN(num)) return num;
+  }
+  return 0;
+}
+
 // Compute raw magic score = rating * review_count
 function rawMagicScore(card) {
   return parseRating(card) * parseReviewCount(card);
