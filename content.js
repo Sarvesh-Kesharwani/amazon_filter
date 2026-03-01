@@ -186,6 +186,12 @@ function applyFilter(settings) {
 
   const hasActiveFilter = Object.values(filters).some(f => f.active);
 
+  // Reset any previously hidden wrapper rows
+  for (const el of document.querySelectorAll('[data-hidden-by-filter="true"]')) {
+    el.style.display = "";
+    delete el.dataset.hiddenByFilter;
+  }
+
   for (const card of cards) {
     // Always reset visibility first
     card.style.display = "";
@@ -194,6 +200,13 @@ function applyFilter(settings) {
 
     if (hasActiveFilter && !passesFilters(card, filters)) {
       card.style.display = "none";
+      // Also hide the closest wrapper row so sibling elements like
+      // "Add to Cart" buttons don't remain visible (see todo #2)
+      const wrapper = card.closest('.s-main-slot > div, .s-result-list > div, .sg-col-inner');
+      if (wrapper && wrapper !== card) {
+        wrapper.style.display = "none";
+        wrapper.dataset.hiddenByFilter = "true";
+      }
       hidden++;
     }
   }
