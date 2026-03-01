@@ -180,6 +180,11 @@ function passesFilters(card, filters) {
   return true;
 }
 
+// Compute raw magic score = rating * review_count
+function rawMagicScore(card) {
+  return parseRating(card) * parseReviewCount(card);
+}
+
 // Sort visible cards in-place within the DOM
 function sortCards(cards, sortBy) {
   if (sortBy === "none") return false;
@@ -188,13 +193,33 @@ function sortCards(cards, sortBy) {
   const field = sortBy.substring(0, lastUnderscore);
   const direction = sortBy.substring(lastUnderscore + 1);
 
-  const getValue = field === "review_count" ? parseReviewCount : parseRating;
+  const fieldGetters = {
+    review_count: parseReviewCount,
+    rating: parseRating,
+    magic_score: rawMagicScore,
+    price: parsePrice,
+  };
+  const getValue = fieldGetters[field] || parseReviewCount;
   const multiplier = direction === "asc" ? 1 : -1;
 
   const visibleCards = cards.filter(c => c.style.display !== "none");
   if (visibleCards.length === 0) return false;
 
   const parent = visibleCards[0].parentNode;
+
+  // For magic_score, normalize raw values to 0-100 range
+  if (field === "magic_score") {
+    const rawScores = visibleCards.map(c => rawMagicScore(c));
+    const maxRaw = Math.max(...rawScores, 1); // avoid division by zero
+    const scoreMap = new Map();
+    visibleCards.forEach((c, i) => scoreMap.set(c, (rawScores[i] / maxRaw) * 100));
+
+    const sorted = [...visibleCards].sort((a, b) => {
+      return (scoreMap.get(a) - scoreMap.get(b)) * multiplier;
+    });
+    for (const card of sorted) parent.appendChild(card);
+    return true;
+  }
 
   const sorted = [...visibleCards].sort((a, b) => {
     return (getValue(a) - getValue(b)) * multiplier;
