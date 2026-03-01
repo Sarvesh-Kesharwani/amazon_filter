@@ -154,6 +154,64 @@ input[type="number"]:focus {
   min-height: 16px;
 }
 
+/* Google sign-in button */
+.google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a1a;
+  background-color: #fff;
+  border: 2px solid #d4cbb5;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.google-btn:hover {
+  border-color: #1a1a1a;
+}
+
+.google-btn svg {
+  flex-shrink: 0;
+}
+
+/* Signed-in user info */
+.user-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #6b6350;
+}
+
+.user-info span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-info a {
+  color: #1a1a1a;
+  font-weight: 600;
+  text-decoration: none;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+.user-info a:hover {
+  opacity: 0.7;
+}
+
+/* Locked pro options in sort dropdown */
+select option.pro-option.locked {
+  color: #a09882;
+}
+
 .bmc-link {
   display: block;
   text-align: center;

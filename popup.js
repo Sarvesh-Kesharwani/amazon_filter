@@ -1,12 +1,94 @@
 const FILTER_KEYS = ["review_count", "rating", "best_seller", "prime", "amazons_choice", "limited_time_deal"];
 const THRESHOLD_KEYS = ["review_count", "rating"]; // filters that need a numeric value
+const PRO_SORT_VALUES = ["magic_score_desc", "price_desc", "price_asc"];
 
 const enabledEl = document.getElementById("enabled");
 const filterSettings = document.getElementById("filterSettings");
 const sortByEl = document.getElementById("sortBy");
 const statusEl = document.getElementById("status");
+const signInBtn = document.getElementById("signInBtn");
+const signOutBtn = document.getElementById("signOutBtn");
+const userInfoEl = document.getElementById("userInfo");
+const userEmailEl = document.getElementById("userEmail");
 
 let debounceTimer = null;
+let isSignedIn = false;
+
+// --- Auth ---
+
+function updateAuthUI(user) {
+  isSignedIn = !!user;
+  if (user) {
+    signInBtn.style.display = "none";
+    userInfoEl.style.display = "flex";
+    userEmailEl.textContent = user.email;
+  } else {
+    signInBtn.style.display = "flex";
+    userInfoEl.style.display = "none";
+    userEmailEl.textContent = "";
+  }
+  updateProOptions();
+}
+
+function updateProOptions() {
+  for (const option of sortByEl.options) {
+    if (PRO_SORT_VALUES.includes(option.value)) {
+      option.classList.toggle("locked", !isSignedIn);
+      // Update label: add/remove lock prefix
+      const cleanText = option.textContent.replace(/^\u{1F512}\s*/u, "");
+      option.textContent = isSignedIn ? cleanText : "\u{1F512} " + cleanText;
+    }
+  }
+}
+
+function signIn() {
+  chrome.identity.getAuthToken({ interactive: true }, (token) => {
+    if (chrome.runtime.lastError || !token) {
+      statusEl.textContent = "Sign-in failed. Try again.";
+      setTimeout(() => { statusEl.textContent = ""; }, 3000);
+      return;
+    }
+    // Fetch user profile
+    fetch("https://www.googleapis.com/oauth2/v1/userinfo?alt=json", {
+      headers: { Authorization: "Bearer " + token },
+    })
+      .then(r => r.json())
+      .then(profile => {
+        const user = { email: profile.email, token };
+        chrome.storage.local.set({ user });
+        updateAuthUI(user);
+      })
+      .catch(() => {
+        // Token might be valid even if profile fetch fails
+        const user = { email: "Signed in", token };
+        chrome.storage.local.set({ user });
+        updateAuthUI(user);
+      });
+  });
+}
+
+function signOut() {
+  chrome.storage.local.get("user", (data) => {
+    if (data.user?.token) {
+      chrome.identity.removeCachedAuthToken({ token: data.user.token });
+    }
+    chrome.storage.local.remove("user");
+    updateAuthUI(null);
+    // Reset sort to "none" if a pro option was selected
+    if (PRO_SORT_VALUES.includes(sortByEl.value)) {
+      sortByEl.value = "none";
+      saveAndApply();
+    }
+  });
+}
+
+signInBtn.addEventListener("click", signIn);
+signOutBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+  signOut();
+});
+
+// --- UI ---
 
 function updateUI() {
   const disabled = !enabledEl.checked;
@@ -72,7 +154,7 @@ function debouncedApply() {
 }
 
 // Load saved settings
-chrome.storage.local.get(["enabled", "filters", "sortBy"], (data) => {
+chrome.storage.local.get(["enabled", "filters", "sortBy", "user"], (data) => {
   enabledEl.checked = data.enabled ?? false;
   sortByEl.value = data.sortBy ?? "none";
 
@@ -85,6 +167,8 @@ chrome.storage.local.get(["enabled", "filters", "sortBy"], (data) => {
       valEl.value = filters[key].value;
     }
   }
+
+  updateAuthUI(data.user || null);
   updateUI();
 });
 
@@ -107,5 +191,12 @@ for (const key of THRESHOLD_KEYS) {
   document.getElementById(`val_${key}`).addEventListener("input", debouncedApply);
 }
 
-// Sort dropdown: immediate apply
-sortByEl.addEventListener("change", saveAndApply);
+// Sort dropdown: gate pro options behind sign-in
+sortByEl.addEventListener("change", () => {
+  if (PRO_SORT_VALUES.includes(sortByEl.value) && !isSignedIn) {
+    sortByEl.value = "none";
+    signIn();
+    return;
+  }
+  saveAndApply();
+});
