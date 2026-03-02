@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<title>Screenshot 1 — Filters Overview (1280x800)</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1280px; height: 800px; font-family: 'Segoe UI', -apple-system, sans-serif; background: #f5f0e1; overflow: hidden; }
+
+  .layout { display: flex; width: 100%; height: 100%; }
+
+  /* Left side — info */
+  .info { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 80px; }
+  .info h1 { font-size: 48px; font-weight: 800; color: #1a1a1a; line-height: 1.15; margin-bottom: 16px; }
+  .info h1 span { color: #e8a820; }
+  .info p { font-size: 20px; color: #6b6350; line-height: 1.5; max-width: 440px; }
+  .badges { display: flex; gap: 10px; margin-top: 28px; flex-wrap: wrap; }
+  .badge { background: #1a1a1a; color: #f5f0e1; font-size: 13px; font-weight: 600; padding: 8px 16px; border-radius: 100px; }
+
+  /* Right side — popup mockup */
+  .popup-wrap { flex: 0 0 420px; display: flex; align-items: center; justify-content: center; }
+  .popup {
+    width: 300px; background: #f5f0e1; border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.06);
+    padding: 20px; position: relative;
+  }
+  .popup::before {
+    content: "Amazon Product Filter"; display: block;
+    font-size: 16px; font-weight: 700; text-align: center; margin-bottom: 14px; color: #1a1a1a;
+  }
+
+  .mock-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .mock-label { font-size: 13px; font-weight: 600; color: #1a1a1a; }
+  .mock-toggle { width: 40px; height: 22px; border-radius: 22px; background: #1a1a1a; position: relative; }
+  .mock-toggle::after { content: ""; position: absolute; width: 16px; height: 16px; border-radius: 50%; background: #fff; top: 3px; right: 3px; }
+
+  .mock-divider { height: 1px; background: #d4cbb5; margin: 10px 0; }
+
+  .mock-cb-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 13px; color: #1a1a1a; }
+  .mock-cb { width: 15px; height: 15px; border: 2px solid #1a1a1a; border-radius: 3px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .mock-cb.checked { background: #1a1a1a; }
+  .mock-cb.checked::after { content: "✓"; color: #fff; font-size: 10px; }
+
+  .mock-input { width: 100%; padding: 7px 10px; border: 2px solid #1a1a1a; border-radius: 6px; background: #faf6eb; font-size: 12px; color: #1a1a1a; margin-bottom: 8px; margin-left: 23px; max-width: calc(100% - 23px); }
+
+  .mock-select { width: 100%; padding: 7px 10px; border: 2px solid #1a1a1a; border-radius: 6px; background: #faf6eb; font-size: 12px; color: #1a1a1a; margin-top: 4px; }
+</style>
+</head>
+<body>
+  <div class="layout">
+    <div class="info">
+      <h1>Filter Amazon<br>Like a <span>Pro</span></h1>
+      <p>Hide low-quality products. Show only what meets your standards — by reviews, rating, Prime, Best Seller, and more.</p>
+      <div class="badges">
+        <span class="badge">6 Filters</span>
+        <span class="badge">Smart Sorting</span>
+        <span class="badge">5 Amazon Domains</span>
+        <span class="badge">Free</span>
+      </div>
+    </div>
+    <div class="popup-wrap">
+      <div class="popup">
+        <div class="mock-row">
+          <span class="mock-label">Enable Filter</span>
+          <div class="mock-toggle"></div>
+        </div>
+        <div class="mock-divider"></div>
+        <div class="mock-cb-row"><div class="mock-cb checked"></div> Min Review Count</div>
+        <div class="mock-input">100</div>
+        <div class="mock-cb-row"><div class="mock-cb checked"></div> Min Rating</div>
+        <div class="mock-input">4.0</div>
+        <div class="mock-cb-row"><div class="mock-cb"></div> Best Seller Only</div>
+        <div class="mock-cb-row"><div class="mock-cb checked"></div> Prime Only</div>
+        <div class="mock-cb-row"><div class="mock-cb"></div> Amazon's Choice</div>
+        <div class="mock-cb-row"><div class="mock-cb"></div> Limited Time Deal</div>
+        <div class="mock-divider"></div>
+        <span class="mock-label">Sort By</span>
+        <div class="mock-select">Magic Score (high to low)</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<title>Screenshot 2 — Sorting Features (1280x800)</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1280px; height: 800px; font-family: 'Segoe UI', -apple-system, sans-serif; background: #1a1a1a; color: #f5f0e1; overflow: hidden; }
+
+  .layout { display: flex; width: 100%; height: 100%; align-items: center; }
+
+  .left { flex: 1; padding: 80px; }
+  .left h1 { font-size: 44px; font-weight: 800; line-height: 1.15; margin-bottom: 16px; }
+  .left h1 span { color: #e8a820; }
+  .left p { font-size: 18px; color: rgba(245,240,225,0.6); line-height: 1.6; max-width: 440px; margin-bottom: 32px; }
+
+  .sort-list { list-style: none; display: flex; flex-direction: column; gap: 16px; }
+  .sort-item { display: flex; align-items: flex-start; gap: 14px; }
+  .sort-bullet { width: 10px; height: 10px; border-radius: 50%; background: #e8a820; margin-top: 6px; flex-shrink: 0; }
+  .sort-item strong { display: block; font-size: 16px; }
+  .sort-item span { font-size: 13px; color: rgba(245,240,225,0.5); }
+
+  .right { flex: 0 0 480px; display: flex; align-items: center; justify-content: center; padding-right: 60px; }
+
+  /* Fake product cards */
+  .cards { display: flex; flex-direction: column; gap: 14px; width: 380px; }
+  .card {
+    background: rgba(245,240,225,0.06); border: 1px solid rgba(245,240,225,0.1);
+    border-radius: 12px; padding: 18px; display: flex; gap: 14px; align-items: center;
+  }
+  .card-img { width: 56px; height: 56px; border-radius: 8px; background: rgba(245,240,225,0.08); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+  .card-info { flex: 1; }
+  .card-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .card-meta { font-size: 12px; color: rgba(245,240,225,0.5); display: flex; gap: 12px; }
+  .card-score { font-size: 22px; font-weight: 800; color: #e8a820; flex-shrink: 0; }
+
+  .card.dimmed { opacity: 0.3; }
+  .hidden-label { text-align: center; font-size: 12px; color: rgba(245,240,225,0.3); margin-top: 4px; }
+</style>
+</head>
+<body>
+  <div class="layout">
+    <div class="left">
+      <h1>Smart Sorting<br>Amazon <span>Doesn't</span> Offer</h1>
+      <p>After filtering, sort the remaining results by what actually matters.</p>
+      <ul class="sort-list">
+        <li class="sort-item"><div class="sort-bullet"></div><div><strong>Review Count</strong><span>Most reviewed first</span></div></li>
+        <li class="sort-item"><div class="sort-bullet"></div><div><strong>Rating</strong><span>Highest rated on top</span></div></li>
+        <li class="sort-item"><div class="sort-bullet"></div><div><strong>Magic Score</strong><span>Rating x Reviews, normalized 0-100</span></div></li>
+        <li class="sort-item"><div class="sort-bullet"></div><div><strong>Price</strong><span>High-to-low or low-to-high</span></div></li>
+      </ul>
+    </div>
+    <div class="right">
+      <div>
+        <div class="cards">
+          <div class="card">
+            <div class="card-img">&#127911;</div>
+            <div class="card-info">
+              <div class="card-title">Premium Wireless Headphones</div>
+              <div class="card-meta"><span>&#11088; 4.7</span><span>12,450 reviews</span><span>$89</span></div>
+            </div>
+            <div class="card-score">97</div>
+          </div>
+          <div class="card">
+            <div class="card-img">&#127911;</div>
+            <div class="card-info">
+              <div class="card-title">Studio Monitor Headphones</div>
+              <div class="card-meta"><span>&#11088; 4.8</span><span>8,200 reviews</span><span>$129</span></div>
+            </div>
+            <div class="card-score">84</div>
+          </div>
+          <div class="card">
+            <div class="card-img">&#127911;</div>
+            <div class="card-info">
+              <div class="card-title">Budget Bluetooth Earbuds</div>
+              <div class="card-meta"><span>&#11088; 4.3</span><span>5,100 reviews</span><span>$24</span></div>
+            </div>
+            <div class="card-score">61</div>
+          </div>
+          <div class="card dimmed">
+            <div class="card-img">&#127911;</div>
+            <div class="card-info">
+              <div class="card-title">No-Name Earphones</div>
+              <div class="card-meta"><span>&#11088; 2.1</span><span>8 reviews</span><span>$5</span></div>
+            </div>
+            <div class="card-score">—</div>
+          </div>
+        </div>
+        <div class="hidden-label">&#128683; Hidden by filter</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

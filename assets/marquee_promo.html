@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<title>Marquee Promo Tile (1400x560)</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1400px; height: 560px; font-family: 'Segoe UI', -apple-system, sans-serif; background: #1a1a1a; color: #f5f0e1; overflow: hidden; }
+
+  .layout { display: flex; width: 100%; height: 100%; align-items: center; }
+
+  .left { flex: 1; padding: 60px 80px; }
+  .left h1 { font-size: 44px; font-weight: 800; line-height: 1.15; margin-bottom: 14px; }
+  .left h1 span { color: #e8a820; }
+  .left p { font-size: 18px; color: rgba(245,240,225,0.55); line-height: 1.6; max-width: 480px; margin-bottom: 28px; }
+  .tags { display: flex; gap: 10px; flex-wrap: wrap; }
+  .tag { background: rgba(245,240,225,0.08); border: 1px solid rgba(245,240,225,0.12); padding: 8px 18px; border-radius: 100px; font-size: 13px; font-weight: 600; }
+  .tag.highlight { background: #e8a820; color: #1a1a1a; border-color: #e8a820; }
+
+  .right { flex: 0 0 540px; display: flex; align-items: center; justify-content: center; padding-right: 40px; }
+
+  /* Popup mockup */
+  .popup {
+    width: 280px; background: #f5f0e1; border-radius: 12px; color: #1a1a1a;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+    padding: 18px; transform: rotate(-2deg);
+  }
+  .popup-title { font-size: 15px; font-weight: 700; text-align: center; margin-bottom: 12px; }
+  .mock-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .mock-label { font-size: 12px; font-weight: 600; }
+  .mock-toggle { width: 36px; height: 20px; border-radius: 20px; background: #1a1a1a; position: relative; }
+  .mock-toggle::after { content: ""; position: absolute; width: 14px; height: 14px; border-radius: 50%; background: #fff; top: 3px; right: 3px; }
+  .mock-divider { height: 1px; background: #d4cbb5; margin: 8px 0; }
+  .mock-cb-row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; font-size: 11px; }
+  .mock-cb { width: 13px; height: 13px; border: 2px solid #1a1a1a; border-radius: 2px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .mock-cb.checked { background: #1a1a1a; }
+  .mock-cb.checked::after { content: "✓"; color: #fff; font-size: 8px; }
+  .mock-select { width: 100%; padding: 6px 8px; border: 2px solid #1a1a1a; border-radius: 5px; background: #faf6eb; font-size: 11px; margin-top: 4px; }
+  .mock-status { text-align: center; font-size: 10px; color: #6b6350; margin-top: 8px; }
+
+  /* Decorative elements */
+  .float-badge {
+    position: absolute; background: #e8a820; color: #1a1a1a; font-size: 12px; font-weight: 800;
+    padding: 6px 14px; border-radius: 100px; white-space: nowrap;
+  }
+  .right { position: relative; }
+  .fb1 { top: 80px; right: 80px; transform: rotate(4deg); }
+  .fb2 { bottom: 100px; right: 60px; transform: rotate(-3deg); }
+</style>
+</head>
+<body>
+  <div class="layout">
+    <div class="left">
+      <h1>Stop Scrolling.<br>Start <span>Finding.</span></h1>
+      <p>Filter Amazon search results by reviews, rating, Prime, Best Seller, Amazon's Choice, and deals. Sort by Magic Score, price, or rating.</p>
+      <div class="tags">
+        <span class="tag highlight">Free</span>
+        <span class="tag">6 Filters</span>
+        <span class="tag">4 Sort Options</span>
+        <span class="tag">5 Amazon Domains</span>
+        <span class="tag">No Data Collected</span>
+      </div>
+    </div>
+    <div class="right">
+      <div class="popup">
+        <div class="popup-title">Amazon Filter</div>
+        <div class="mock-row">
+          <span class="mock-label">Enable Filter</span>
+          <div class="mock-toggle"></div>
+        </div>
+        <div class="mock-divider"></div>
+        <div class="mock-cb-row"><div class="mock-cb checked"></div> Min Review Count</div>
+        <div class="mock-cb-row"><div class="mock-cb checked"></div> Min Rating</div>
+        <div class="mock-cb-row"><div class="mock-cb"></div> Best Seller Only</div>
+        <div class="mock-cb-row"><div class="mock-cb checked"></div> Prime Only</div>
+        <div class="mock-cb-row"><div class="mock-cb"></div> Amazon's Choice</div>
+        <div class="mock-cb-row"><div class="mock-cb"></div> Limited Time Deal</div>
+        <div class="mock-divider"></div>
+        <span class="mock-label">Sort By</span>
+        <div class="mock-select">&#10024; Magic Score (high to low)</div>
+        <div class="mock-status">Done — 14 hidden, sorted.</div>
+      </div>
+      <div class="float-badge fb1">&#11088; Magic Score</div>
+      <div class="float-badge fb2">&#128666; Prime Filter</div>
+    </div>
+  </div>
+</body>
+</html>
