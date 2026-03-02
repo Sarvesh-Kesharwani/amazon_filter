@@ -4,7 +4,7 @@
 
 ### New
 - **Landing Page**: Added a product landing page (`landing/`) for the Chrome Web Store listing — hero, features, sorting showcase, how-it-works, and supported domains.
-- **Store Assets**: Added Chrome Web Store graphic assets (`assets/`) — store icon SVG, 3 screenshot mockups (1280x800), small promo tile (440x280), and marquee promo tile (1400x560).
+- **Store Assets**: Added Chrome Web Store graphic assets as ready-to-upload JPEGs/PNG — store icon (128x128 PNG), 3 screenshots (1280x800 JPEG), small promo tile (440x280 JPEG), and marquee promo tile (1400x560 JPEG).
 
 ---
 
