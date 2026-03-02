@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Amazon Product Filter — Smart Filtering & Sorting for Amazon</title>
+  <meta name="description" content="Filter Amazon search results by reviews, rating, Prime, Best Seller, and more. Sort by Magic Score, price, or rating. Free Chrome extension.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="../icons/icon48.png" type="image/png">
+</head>
+<body>
+
+  <!-- Hero -->
+  <header class="hero">
+    <nav class="nav">
+      <div class="nav-brand">
+        <img src="../icons/icon48.png" alt="Amazon Product Filter" width="32" height="32">
+        <span>Amazon Product Filter</span>
+      </div>
+      <a href="#install" class="nav-cta">Add to Chrome</a>
+    </nav>
+
+    <div class="hero-content">
+      <h1>Stop Scrolling.<br>Start <span class="highlight">Finding.</span></h1>
+      <p class="hero-sub">Filter out the noise on Amazon. Show only products that match your standards — by reviews, rating, Prime, Best Seller, and more.</p>
+      <div class="hero-actions">
+        <a href="#install" class="btn btn-primary">Add to Chrome — It's Free</a>
+        <a href="#features" class="btn btn-secondary">See Features</a>
+      </div>
+      <p class="hero-note">Works on amazon.com, .in, .co.uk, .de, and .ca</p>
+    </div>
+  </header>
+
+  <!-- Problem / Solution -->
+  <section class="problem" id="why">
+    <div class="container">
+      <h2>Amazon Search Is Broken</h2>
+      <div class="problem-grid">
+        <div class="problem-card">
+          <span class="problem-icon">&#128683;</span>
+          <h3>Low-Quality Results</h3>
+          <p>Products with 3 reviews and no rating show up next to best sellers. You deserve better signal.</p>
+        </div>
+        <div class="problem-card">
+          <span class="problem-icon">&#9203;</span>
+          <h3>Time Wasted</h3>
+          <p>Manually checking each listing for Prime, ratings, and review counts is exhausting.</p>
+        </div>
+        <div class="problem-card">
+          <span class="problem-icon">&#128176;</span>
+          <h3>No Smart Sorting</h3>
+          <p>Amazon's default sort doesn't let you rank by what actually matters — quality and trust.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features" id="features">
+    <div class="container">
+      <h2>Powerful Filters. Zero Effort.</h2>
+      <p class="section-sub">Toggle the filters you care about. Results update instantly.</p>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">&#11088;</div>
+          <h3>Minimum Rating</h3>
+          <p>Hide anything below your minimum star rating. Only see 4+ star products? Done.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#128221;</div>
+          <h3>Minimum Reviews</h3>
+          <p>Filter out products with too few reviews. Set a threshold like 100, 500, or 1000+.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#127942;</div>
+          <h3>Best Seller Only</h3>
+          <p>Show only products that carry Amazon's Best Seller badge.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#128666;</div>
+          <h3>Prime Only</h3>
+          <p>Filter to show only Prime-eligible items with fast, free shipping.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#9989;</div>
+          <h3>Amazon's Choice</h3>
+          <p>Show only products recommended by Amazon as top choices in their category.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#9889;</div>
+          <h3>Limited Time Deals</h3>
+          <p>Spot deals instantly — filter to show only products with active limited time offers.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sorting -->
+  <section class="sorting" id="sorting">
+    <div class="container">
+      <div class="sorting-layout">
+        <div class="sorting-text">
+          <h2>Smart Sorting That Amazon Doesn't Offer</h2>
+          <p>After filtering, sort the remaining results by what matters most to you.</p>
+          <ul class="sorting-list">
+            <li>
+              <strong>Review Count</strong>
+              <span>Most reviewed products first — find the crowd favorites.</span>
+            </li>
+            <li>
+              <strong>Rating</strong>
+              <span>Highest rated on top — quality over everything.</span>
+            </li>
+            <li>
+              <strong>Magic Score</strong>
+              <span>Our combined score (rating x reviews, normalized 0-100). The best balance of quality and popularity.</span>
+            </li>
+            <li>
+              <strong>Price</strong>
+              <span>Sort by price, high-to-low or low-to-high.</span>
+            </li>
+          </ul>
+        </div>
+        <div class="sorting-visual">
+          <div class="sort-demo">
+            <div class="sort-demo-header">Sort By</div>
+            <div class="sort-demo-option">None (default order)</div>
+            <div class="sort-demo-option">Review Count (high to low)</div>
+            <div class="sort-demo-option">Rating (high to low)</div>
+            <div class="sort-demo-option active">&#10024; Magic Score (high to low)</div>
+            <div class="sort-demo-option">Price (high to low)</div>
+            <div class="sort-demo-option">Price (low to high)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="how" id="how">
+    <div class="container">
+      <h2>How It Works</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <h3>Install</h3>
+          <p>Add the extension from the Chrome Web Store. One click, no account needed.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <h3>Search Amazon</h3>
+          <p>Go to Amazon and search for anything like you normally would.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <h3>Filter & Sort</h3>
+          <p>Open the extension popup, toggle your filters, pick a sort — results update instantly.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Domains -->
+  <section class="domains">
+    <div class="container">
+      <h2>Works Across Amazon</h2>
+      <div class="domain-list">
+        <span class="domain-badge">amazon.com</span>
+        <span class="domain-badge">amazon.in</span>
+        <span class="domain-badge">amazon.co.uk</span>
+        <span class="domain-badge">amazon.de</span>
+        <span class="domain-badge">amazon.ca</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta" id="install">
+    <div class="container">
+      <h2>Ready to Filter the Noise?</h2>
+      <p>Join thousands of smart Amazon shoppers. Free to install, no account required for basic features.</p>
+      <a href="#" class="btn btn-primary btn-large" id="installBtn">Add to Chrome — Free</a>
+      <p class="cta-note">Chrome &middot; Manifest V3 &middot; No data collected</p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <img src="../icons/icon48.png" alt="" width="24" height="24">
+        <span>Amazon Product Filter</span>
+      </div>
+      <div class="footer-links">
+        <a href="https://buymeacoffee.com/sarvesh42" target="_blank" rel="noopener">Buy Me a Coffee</a>
+      </div>
+      <p class="footer-copy">&copy; 2025 Amazon Product Filter. Not affiliated with Amazon.</p>
+    </div>
+  </footer>
+
+</body>
+</html>

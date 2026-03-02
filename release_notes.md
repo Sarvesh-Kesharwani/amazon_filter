@@ -1,5 +1,12 @@
 # Release Notes — Amazon Product Filter
 
+## v1.2.1
+
+### New
+- **Landing Page**: Added a product landing page (`landing/`) for the Chrome Web Store listing — hero, features, sorting showcase, how-it-works, and supported domains.
+
+---
+
 ## v1.2.0
 
 ### New Features
