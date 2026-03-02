@@ -1,5 +1,25 @@
 # Release Notes — Amazon Product Filter
 
+## v1.2.0
+
+### New Features
+- **Amazon's Choice Filter**: Filter to show only Amazon's Choice products.
+- **Limited Time Deal Filter**: Filter to show only products with limited time deals.
+- **Magic Score Sorting**: Sort by a combined score (rating × review count), normalized to 0-100.
+- **Price Sorting**: Sort by price, high-to-low or low-to-high.
+- **Google Sign-In**: Advanced sorting features (Magic Score, Price) require Google sign-in.
+- **Buy Me a Coffee**: Donation link added to the popup.
+
+### Bug Fixes
+- Fixed orphaned "Add to Cart" buttons remaining visible when products are hidden by filters.
+- Removed low-to-high sorting options for rating and review count (not useful).
+- Separated Amazon's Choice detection from Best Seller (previously conflated).
+
+### Technical
+- Switched Google auth to `launchWebAuthFlow` for compatibility with unpublished extensions.
+
+---
+
 ## v1.1.0
 
 ### New Features

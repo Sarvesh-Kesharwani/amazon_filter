@@ -41,10 +41,34 @@ function updateProOptions() {
   }
 }
 
+function getRedirectURL() {
+  return chrome.identity.getRedirectURL();
+}
+
 function signIn() {
-  chrome.identity.getAuthToken({ interactive: true }, (token) => {
-    if (chrome.runtime.lastError || !token) {
-      statusEl.textContent = "Sign-in failed. Try again.";
+  const manifest = chrome.runtime.getManifest();
+  const clientId = manifest.oauth2.client_id;
+  const redirectUrl = getRedirectURL();
+  const scopes = manifest.oauth2.scopes.join(" ");
+
+  const authUrl = "https://accounts.google.com/o/oauth2/v2/auth" +
+    "?client_id=" + encodeURIComponent(clientId) +
+    "&response_type=token" +
+    "&redirect_uri=" + encodeURIComponent(redirectUrl) +
+    "&scope=" + encodeURIComponent(scopes);
+
+  chrome.identity.launchWebAuthFlow({ url: authUrl, interactive: true }, (responseUrl) => {
+    if (chrome.runtime.lastError || !responseUrl) {
+      const err = chrome.runtime.lastError?.message || "Unknown error";
+      statusEl.textContent = "Sign-in failed: " + err;
+      setTimeout(() => { statusEl.textContent = ""; }, 5000);
+      return;
+    }
+    // Extract access token from redirect URL fragment
+    const hashParams = new URLSearchParams(responseUrl.split("#")[1]);
+    const token = hashParams.get("access_token");
+    if (!token) {
+      statusEl.textContent = "Sign-in failed. No token received.";
       setTimeout(() => { statusEl.textContent = ""; }, 3000);
       return;
     }
@@ -59,7 +83,6 @@ function signIn() {
         updateAuthUI(user);
       })
       .catch(() => {
-        // Token might be valid even if profile fetch fails
         const user = { email: "Signed in", token };
         chrome.storage.local.set({ user });
         updateAuthUI(user);
@@ -69,8 +92,9 @@ function signIn() {
 
 function signOut() {
   chrome.storage.local.get("user", (data) => {
+    // Revoke the token so the user has to re-consent next time
     if (data.user?.token) {
-      chrome.identity.removeCachedAuthToken({ token: data.user.token });
+      fetch("https://accounts.google.com/o/oauth2/revoke?token=" + data.user.token);
     }
     chrome.storage.local.remove("user");
     updateAuthUI(null);
