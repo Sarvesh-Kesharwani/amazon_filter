@@ -1,5 +1,12 @@
 # Release Notes — Amazon Product Filter
 
+## Unreleased
+
+### Docs
+- **CLAUDE.md**: Added guidance for Claude Code — project rules, storage shape, popup/content-script flow, where filter keys must stay in sync, and known gotchas.
+
+---
+
 ## v1.2.1
 
 ### New
