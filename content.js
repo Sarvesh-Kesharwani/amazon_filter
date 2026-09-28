@@ -305,6 +305,10 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   return true;
 });
 
-// NOTE: No auto-apply on page load. The filter only runs when the user
-// clicks Apply or toggles enabled in the popup. This prevents the toggle
-// from appearing to auto-enable on every page reload.
+// Re-apply saved settings on every page load (new search, back/forward,
+// refresh). Only the popup writes `enabled`, so this never flips the toggle.
+chrome.storage.local.get(["enabled", "filters", "sortBy"], (data) => {
+  if (data.enabled) {
+    applyFilter(data);
+  }
+});
